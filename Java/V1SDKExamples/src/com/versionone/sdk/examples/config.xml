@@ -1,0 +1,9 @@
+<config>
+	<v1ServerUrl></v1ServerUrl>
+	<username></username>
+	<password></password>
+	<integrated>false</integrated>
+	<idpResponseParser></idpResponseParser>
+	<spResponseParser></spResponseParser>
+	<idpUrl></idpUrl>
+</config>
