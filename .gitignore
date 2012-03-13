@@ -1,9 +1,12 @@
-Java/.metadata
+.metadata
+.settings
+bin
+VersionOne.APIClient.SSOExtension.jar
 
-Java/V1SDKExamples/bin
-Java/V1SDKExamples/.settings
+*.user
+*.suo
+*resharper.user
+_ReSharper.*/
+*.sln.cache
 
-Java/VersionOneSSO/bin
-Java/VersionOneSSO/.settings
-
-Java/VersionOne.APIClient.SSOExtension.jar
+obj
