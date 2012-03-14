@@ -6,7 +6,7 @@ public class Program {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-        SdkSampleBase example = new SSOExample();
+        ISdkSample example = new SSOExample();
         example.loadConfig();
         example.commandLineArguments(args);
         example.connect();

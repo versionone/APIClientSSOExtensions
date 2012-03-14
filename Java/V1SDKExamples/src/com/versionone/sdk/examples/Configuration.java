@@ -5,6 +5,12 @@ import org.apache.commons.configuration.XMLConfiguration;
 
 import com.versionone.sso.IVersionOneSSOConfiguration;
 
+/**
+ * Wrapper for sample program configuration
+ * 
+ * @author jerry
+ *
+ */
 public class Configuration implements IVersionOneSSOConfiguration 
 {
 	

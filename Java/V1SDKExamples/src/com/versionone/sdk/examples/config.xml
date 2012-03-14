@@ -1,9 +1,9 @@
 <config>
-	<v1ServerUrl></v1ServerUrl>
+	<v1ServerUrl>https://www7.v1host.com/V1SSOTest/</v1ServerUrl>
 	<username></username>
 	<password></password>
-	<integrated>false</integrated>
-	<idpResponseParser></idpResponseParser>
-	<spResponseParser></spResponseParser>
-	<idpUrl></idpUrl>
+	<integrated>true</integrated>
+	<idpResponseParser>com.versionone.sso.providers.PingIdpResponseParser</idpResponseParser>
+	<spResponseParser>com.versionone.sso.providers.PingSpResponseParser</spResponseParser>
+	<idpUrl>http://sso:8081/idp/startSSO.ping?PartnerSpId=versionone.com&amp;amp;TargetResource=https://www7.v1host.com/V1SSOTest/default.aspx</idpUrl>
 </config>

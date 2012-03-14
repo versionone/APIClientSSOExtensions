@@ -19,6 +19,11 @@ import sun.net.www.protocol.http.AuthCacheValue;
 import com.versionone.apiclient.ConnectionException;
 import com.versionone.apiclient.IAPIConnector;
 
+/**
+ * IAPIConnector that supports SSO authenticationZ
+ * @author jerry
+ *
+ */
 public class V1SsoConnector implements IAPIConnector {
 
     private String _v1Url;
@@ -32,11 +37,34 @@ public class V1SsoConnector implements IAPIConnector {
 	public final Map<String, String> customHttpHeaders = new HashMap<String, String>();
 
 	/**
-	 * Object Construction 
-	 * @param idpUrl - URL to Identity Provider
-	 * @param v1V1Url - URL to VersionOne Server
-	 * @param username - username
-	 * @param password - password
+	 * Helper method to create a Meta connection (ServerUrl + /meta.v1/)
+	 * @param config - Configuration 
+	 * @return
+	 */
+	public static V1SsoConnector createMetaConnector(IVersionOneSSOConfiguration config)
+	{
+		return new V1SsoConnector(config, "/meta.v1/"); 
+	}
+	
+	/**
+	 * Helper method to create a data connection (ServerUrl + /rest-1.v1/)
+	 * @param config - Configuration 
+	 * @param authenticate - true if this method should attempt authentication
+	 * @return
+	 * @throws ConnectionException
+	 */
+	public static V1SsoConnector createDataConnector(IVersionOneSSOConfiguration config, boolean authenticate) throws ConnectionException
+	{
+		V1SsoConnector dataConnector = new V1SsoConnector(config, "/rest-1.v1/");
+        if(authenticate)
+            dataConnector.authenticate();
+        return dataConnector;
+	}
+
+	/**
+	 * Construction
+	 * @param config - configuration
+	 * @param path - path extension (/meta.v1/ or /rest-1.v1/)
 	 */
 	public V1SsoConnector(IVersionOneSSOConfiguration config, String path)
 	{
@@ -87,7 +115,7 @@ public class V1SsoConnector implements IAPIConnector {
     	HttpResponse response = new HttpClient().execute(request);     	
     	
     	try {
-			idpResponseParser.load(response.getInputStream());
+			idpResponseParser.loadResponse(response.getInputStream());
 			idpResponseParser.setUrlAuthority(response.getResponseAuthority());
 		} catch (IOException e) {
 			throw new ConnectionException("Error Reading IPD Response",e);	
@@ -112,7 +140,7 @@ public class V1SsoConnector implements IAPIConnector {
     {
         IResponseParser spResponseParser = ResponseParserFactory.CreateServiceProviderResponseParser();
         
-    	FormData formData = idpResponse.getFormData();
+    	PostData formData = idpResponse.getPostData();
     	formData.setCredentials(_username, _password);
     	
         // Prepare web request...
@@ -120,7 +148,7 @@ public class V1SsoConnector implements IAPIConnector {
 		try {
 
 			request = HttpPost.create(idpResponse.getPostUrl(), "application/x-www-form-urlencoded");
-	        request.setData(formData.getPostData());
+	        request.setData(formData.toString());
 
 		} catch (MalformedURLException e) {
 			throw new ConnectionException("Invalid URL from IDP", e);
@@ -129,7 +157,7 @@ public class V1SsoConnector implements IAPIConnector {
         HttpResponse spResponse = new HttpClient().execute(request);
         
         try {
-			spResponseParser.load(spResponse.getInputStream());
+			spResponseParser.loadResponse(spResponse.getInputStream());
 		} catch (Exception e) {
 			throw new ConnectionException("Error Reading IPD Response",e);
 		}
@@ -145,12 +173,12 @@ public class V1SsoConnector implements IAPIConnector {
 	 */
     private void ServiceProviderRequest(IResponseParser spResponse) throws ConnectionException
     {
-    	FormData formData = spResponse.getFormData();
+    	PostData formData = spResponse.getPostData();
 
         HttpPost request;
 		try {
 			request = HttpPost.create(StringEscapeUtils.unescapeHtml(spResponse.getPostUrl()), "application/x-www-form-urlencoded");
-			request.setData(formData.getPostData());
+			request.setData(formData.toString());
 		} catch (MalformedURLException e) {
 			throw new ConnectionException("Invalid URL for Service Provider Request", e);
 		}

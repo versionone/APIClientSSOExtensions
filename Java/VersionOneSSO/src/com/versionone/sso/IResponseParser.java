@@ -3,7 +3,7 @@ package com.versionone.sso;
 import java.io.InputStream;
 
 /**
- *  Interface that a SamlResponseParser needs to implement
+ * Interface that a SSO provider (IDP and SP) needs to implement
  * @author jerry
  *
  */
@@ -16,18 +16,6 @@ public interface IResponseParser {
 	String getPostUrl();
 
 	/**
-	 * The SAML response  
-	 * @return
-	 */
-	String getSamlResponse();
-
-	/**
-	 * The relay state
-	 * @return
-	 */
-	String getRelayState();
-
-	/**
 	 * This is the UriPartial.Authority part of the site that sent us the SAML response. 
 	 * This is important when the PostsUrl is relative.
 	 * @param value
@@ -35,14 +23,14 @@ public interface IResponseParser {
 	void setUrlAuthority(String value);
 
 	/**
-	 * Create the SAML Response from a stream
-	 * @param reader - page returned from server
+	 * CLoad the response received from a server
+	 * @param reader 
 	 * @throws Exception
 	 */
-	void load(InputStream reader) throws Exception;
+	void loadResponse(InputStream reader) throws Exception;
 	
 	/**
 	 * Return the form data necessary to take the next step.
 	 */
-	FormData getFormData();
+	PostData getPostData();
 }

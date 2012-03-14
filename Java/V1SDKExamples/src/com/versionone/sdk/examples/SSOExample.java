@@ -17,32 +17,30 @@ import com.versionone.apiclient.QueryResult;
 import com.versionone.apiclient.Services;
 import com.versionone.sso.V1SsoConnector;
 
-public class SSOExample extends SdkSampleBase {
+public class SSOExample implements ISdkSample {
 
-	private String _idpUrl;
+	public void loadConfig() {}
 	
-	@Override
-	public void loadConfig()
-	{		
-		super.loadConfig();
-		setIdpUrl(Configuration.instance().getIdpUrl());
-	}
+	public void commandLineArguments(String[] args) {}
 	
-    @Override
 	public void connect() {
-    	
-        Log("Creating Meta Connector");
-        IAPIConnector metaConnector = new V1SsoConnector(Configuration.instance(), "/meta.v1/");
-        Log("Create MetaModel");
-        _meta = new MetaModel(metaConnector);
-
-        Log("Creating Data Connector");
-//        IAPIConnector dataConnector = new V1SsoConnector(Configuration.instance(), "/rest-1.v1/");
-        V1SsoConnector dataConnector = new V1SsoConnector(Configuration.instance(), "/rest-1.v1/");
-        
+    	        
         try {
+            Log("Creating Meta Connector");
+            IAPIConnector metaConnector = V1SsoConnector.createMetaConnector(Configuration.instance());
+            
+            Log("Create MetaModel");
+            _meta = new MetaModel(metaConnector);
+        	
+            Log("Creating Data Connector");
+            V1SsoConnector dataConnector = V1SsoConnector.createDataConnector(Configuration.instance(), false);
+        	
         	Log("Authenticate");
 			dataConnector.authenticate();
+			
+	        Log("Create Services");
+	        _services = new Services(_meta, dataConnector);
+			
 		} catch (SecurityException e) {
 			e.printStackTrace();
 			return;
@@ -51,20 +49,8 @@ public class SSOExample extends SdkSampleBase {
 			return;
 		}
         
-        Log("Create Services");
-        _services = new Services(_meta, dataConnector);
 	}
 
-    protected IMetaModel _meta; 
-	public IMetaModel getMetaModel() {
-		return _meta;
-	}
-
-	private IServices _services;
-	public IServices getServices() {
-		return _services;
-	}
-    
     public void run()
     {
     	try {
@@ -92,18 +78,20 @@ public class SSOExample extends SdkSampleBase {
 		}    	
     }
 
+    protected IMetaModel _meta; 
+	public IMetaModel getMetaModel() {
+		return _meta;
+	}
+
+	private IServices _services;
+	public IServices getServices() {
+		return _services;
+	}
+        
 	private void Log(String message)
     {
         Date now = Calendar.getInstance().getTime();
         System.out.printf("%s - %s\n", now.toString(), message);
     }
-
-	public String getIdpUrl() {
-		return _idpUrl;
-	}
-
-	public void setIdpUrl(String _idpUrl) {
-		this._idpUrl = _idpUrl;
-	}
     
 }

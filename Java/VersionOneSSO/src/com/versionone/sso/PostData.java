@@ -7,10 +7,23 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
-public abstract class FormData {
+/**
+ * Data posted to SSO Providers (IDP and SP)
+ * This object needs to be created and returned by the class that implements IResponseProvider
+ * @author jerry
+ *
+ */
+public abstract class PostData {
 
     private List<String> _formData = new ArrayList<String>();
     
+    /**
+     * Add a key-value pair
+     * results in post data that read key=value
+     * 
+     * @param key
+     * @param value
+     */
     public void add(String key, String value)
     {
         try {
@@ -21,15 +34,23 @@ public abstract class FormData {
 		}
     }
     
+    /**
+     * adds a key with no value
+     * results in post data that reads key=
+     * @param key
+     */
     public void add(String key)
     {
         _formData.add(String.format("%s=", key));
     }
 
-    public String getPostData()
-    {	
+    /**
+     * Returns the post data string
+     */
+    @Override
+	public String toString() {
     	return StringUtils.join(_formData, "&");
-    }
+	}
     
     /**
      * Identity Providers have different field names for credentials.   
