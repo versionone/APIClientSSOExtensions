@@ -6,17 +6,46 @@ using System.Web;
 
 namespace VersionOne.SDK.APIClient.SSOExtension
 {
+    /// <summary>
+    /// IAPIConnector that supports SSO authentication
+    /// </summary>
     public class V1SsoConnector : IAPIConnector
     {
+        #region Attributes
         private readonly string _v1Url;
         private readonly string _idpUrl;
-
         private readonly string _username;
         private readonly string _password;
         private readonly bool _integratedauth;
-
         private readonly ResponseParserFactory _responseParserFactory;
+        #endregion
 
+        /// <summary>
+        /// Helper method to create a Meta connection (ServerUrl + /meta.v1/)
+        /// </summary>
+        /// <param name="config">configuration</param>
+        /// <returns></returns>
+        public static V1SsoConnector CreateMetaConnection(IVersionOneSsoConfiguration config) { return new V1SsoConnector(config, "/meta.v1/"); }
+
+        /// <summary>
+        /// Helper method to create a data connection (ServerUrl + /rest-1.v1/)
+        /// </summary>
+        /// <param name="config">configuration</param>
+        /// <param name="authenticate">true if this method should attempt authentication</param>
+        /// <returns></returns>
+        public static V1SsoConnector CreateDataConnection(IVersionOneSsoConfiguration config, bool authenticate)
+        {
+            var dataConnector = new V1SsoConnector(config, "/rest-1.v1/");
+            if(authenticate)
+                dataConnector.Authenticate();
+            return dataConnector;
+        }
+
+        /// <summary>
+        /// Construction
+        /// </summary>
+        /// <param name="config">configuration object</param>
+        /// <param name="pathExtension">path extension (/meta.v1/ or /rest-1.v1/)</param>
         public V1SsoConnector(IVersionOneSsoConfiguration config, string pathExtension)
         {
             _v1Url = config.ServerUrl + pathExtension;
@@ -27,13 +56,21 @@ namespace VersionOne.SDK.APIClient.SSOExtension
             _responseParserFactory = new ResponseParserFactory(config);
         }
 
+        /// <summary>
+        /// Authenticates this connection.  While not required, it is recommended that you call
+        /// this method for the "Services" connection ensure that you can authenticate before 
+        /// running your code.  
+        /// 
+        /// This method is called automatically if the VersionOne server requires authentication.
+        /// </summary>
         public void Authenticate()
         {
-            IResponseParser idpResponse = IdentityProviderRequest();
-            IResponseParser spResponse = IdentityProviderAuthentication(idpResponse);
+            var idpResponse = IdentityProviderRequest();
+            var spResponse = IdentityProviderAuthentication(idpResponse);
             ServiceProviderRequest(spResponse);
         }
 
+        #region Implementation of IAPIConnector Methods
         public Stream GetData()
         {
             return GetData(string.Empty);
@@ -116,6 +153,13 @@ namespace VersionOne.SDK.APIClient.SSOExtension
             get { return _customHttpHeaders; }
         }
 
+        #endregion
+
+        /// <summary>
+        /// Create a HTTPWebREquest
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         private HttpWebRequest CreateRequest(string path)
         {
             var request = (HttpWebRequest)WebRequest.Create(path);
@@ -180,12 +224,12 @@ namespace VersionOne.SDK.APIClient.SSOExtension
 
         #region Authentication Private Methods
         /// <summary>
-        /// Make a request to the IdP to get the Response value.
+        /// Make a request to the IdP and return the response.
         /// 
         /// ** This is here, as opposed to a seperate object because we need to share the Cookie container **
         /// 
         /// </summary>
-        /// <returns></returns>
+        /// <returns>response from IDP server</returns>
         private IResponseParser IdentityProviderRequest()
         {
             HttpWebRequest idpRequest = CreateRequest(_idpUrl);
@@ -196,7 +240,7 @@ namespace VersionOne.SDK.APIClient.SSOExtension
             using (WebResponse idpResponse = idpRequest.GetResponse())
             {
                 using (Stream stream = idpResponse.GetResponseStream())
-                    responseParser.Load(stream);
+                    responseParser.LoadResponse(stream);
 
                 responseParser.UrlAuthority = idpResponse.ResponseUri.GetLeftPart(UriPartial.Authority);
             }
@@ -204,18 +248,19 @@ namespace VersionOne.SDK.APIClient.SSOExtension
         }
 
         /// <summary>
-        /// Post the response from the Identity Provider challenge to the proper URL for authentication
+        /// Post the response from the Identity Provider to the URL specified for authentication
         /// 
         /// ** This is here, as opposed to a seperate object because we need to share the Cookie container **
         /// 
         /// </summary>
-        /// <param name="response"></param>
+        /// <param name="response">initial response from IDP server (before authentication)</param>
+        /// <returns>response from IDP server after authentication</returns>
         private IResponseParser IdentityProviderAuthentication(IResponseParser response)
         {
-            var formData = response.FormData;
+            var formData = response.PostData;
             formData.SetCredentials(_username, _password);
 
-            var postData = formData.ToPostData();
+            var postData = formData.ToString();
 
             // Prepare web request...
             HttpWebRequest request = CreateRequest(response.PostUrl);
@@ -233,15 +278,19 @@ namespace VersionOne.SDK.APIClient.SSOExtension
             using (WebResponse idpResponse = request.GetResponse())
             {
                 using (Stream responseStream = idpResponse.GetResponseStream())
-                    responseParser.Load(responseStream);
+                    responseParser.LoadResponse(responseStream);
             }
             return responseParser;
         }
 
+        /// <summary>
+        /// Post data to the service provider
+        /// </summary>
+        /// <param name="response">response from IDP after authentication</param>
         private void ServiceProviderRequest(IResponseParser response)
         {
-            var formData = response.FormData;
-            var postData = formData.ToPostData();
+            var formData = response.PostData;
+            var postData = formData.ToString();
 
             // Prepare web request...
             string url = HttpUtility.HtmlDecode(response.PostUrl);

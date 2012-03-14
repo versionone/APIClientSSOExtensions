@@ -60,6 +60,8 @@
     <Compile Include="SdkSampleBase.cs" />
     <Compile Include="SsoExample.cs" />
     <Compile Include="sso\providers\OpenSsoSpResponseParser.cs" />
+    <Compile Include="sso\providers\PingIdpResponseParser.cs" />
+    <Compile Include="sso\providers\PingSpResponseParser.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

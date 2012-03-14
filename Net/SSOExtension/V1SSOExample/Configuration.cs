@@ -1,9 +1,11 @@
-﻿
-using System.Configuration;
+﻿using System.Configuration;
 using VersionOne.SDK.APIClient.SSOExtension;
 
 namespace V1SSOExample
 {
+    /// <summary>
+    /// wrapper for sample program configuration
+    /// </summary>
     class Configuration : IVersionOneSsoConfiguration
     {
         private static Configuration _impl;

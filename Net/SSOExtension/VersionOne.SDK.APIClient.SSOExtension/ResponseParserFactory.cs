@@ -2,17 +2,28 @@
 
 namespace VersionOne.SDK.APIClient.SSOExtension
 {
+    /// <summary>
+    /// Factory for creating response parsers
+    /// </summary>
     internal class ResponseParserFactory
     {
         private string IdpParserClassType { get; set; }
         private string SpParserClassType { get; set; }
 
+        /// <summary>
+        /// Construction
+        /// </summary>
+        /// <param name="config"></param>
         public ResponseParserFactory(IVersionOneSsoConfiguration config)
         {
             IdpParserClassType = config.IdpResponseParser;
             SpParserClassType = config.SpResponseParser;
         }
 
+        /// <summary>
+        /// Create the Identity Provider parser
+        /// </summary>
+        /// <returns></returns>
         public IResponseParser CreateIdentityProviderResponseParser()
         {
             var type = Type.GetType(IdpParserClassType, true);
@@ -22,6 +33,10 @@ namespace VersionOne.SDK.APIClient.SSOExtension
             return parser;
         }
 
+        /// <summary>
+        /// Create the Service Provider parser
+        /// </summary>
+        /// <returns></returns>
         public IResponseParser CreateServiceProviderResponseParser()
         {
             var type = Type.GetType(SpParserClassType, true);

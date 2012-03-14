@@ -4,7 +4,10 @@ using VersionOne.SDK.APIClient.SSOExtension;
 
 namespace V1SSOExample
 {
-    internal class SsoExample : ISdkSampleBase
+    /// <summary>
+    /// Demonstrate SSO connector
+    /// </summary>
+    internal class SsoExample : ISdkSample
     {
         public IMetaModel Meta { get; private set; }
         public IServices Services { get; private set; }
@@ -15,14 +18,18 @@ namespace V1SSOExample
         public void Connect()
         {
             Log("Create Meta Connector");
-            var metaConnector = new V1SsoConnector(Configuration.Instance(), "/meta.v1/");
+            var metaConnector = V1SsoConnector.CreateMetaConnection(Configuration.Instance());
+
             Log("Created Meta Model");
             Meta = new MetaModel(metaConnector);
 
             Log("Creating Data Connector");
-            var dataConnector = new V1SsoConnector(Configuration.Instance(), "/rest-1.v1/");
+            var dataConnector = V1SsoConnector.CreateDataConnection(Configuration.Instance(), false); 
+
             Log("Authenticate");
             dataConnector.Authenticate();
+
+            Log("Created Services");
             Services = new Services(Meta, dataConnector);
         }
 
@@ -32,15 +39,16 @@ namespace V1SSOExample
             IAssetType memberType = Meta.GetAssetType("Member");
             Log(memberType.DisplayName);
 
-            Log("Go");
+            Log("Perform a query");
             var query = new Query(memberType);
             QueryResult result = Services.Retrieve(query);
-            Console.WriteLine("Server returned {0} members", result.TotalAvaliable);
+
+            Log(string.Format("Server returned {0} members", result.TotalAvaliable));
         }
 
         private static void Log(string message)
         {
-            DateTime now = DateTime.Now;
+            var now = DateTime.Now;
             Console.WriteLine("{0} {1} - {2}", now.ToShortDateString(), now.ToLongTimeString(), message);
         }
 

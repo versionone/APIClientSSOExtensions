@@ -9,10 +9,8 @@ namespace V1SSOExample.sso.providers
         private readonly HtmlDocument _doc = new HtmlDocument();
 
         public string PostUrl { get { return UrlAuthority + GetValueFromNode("//form[@name='Login']", "action"); } }
-        public string SamlResponse { get { return GetValueFromNode("//input[@name=\"goto\"]", "value"); } }
-        public string RelayState { get { return GetValueFromNode("//input[@name=\"SunQueryParamsString\"]", "value"); } }
         public string UrlAuthority { get; set; }
-        public void Load(Stream stream) { _doc.Load(stream); }
+        public void LoadResponse(Stream stream) { _doc.Load(stream); }
 
 
         private string GetValueFromNode(string elementXpath, string attributeName)
@@ -25,11 +23,14 @@ namespace V1SSOExample.sso.providers
             return null;
         }
 
-        public FormData FormData
+        private string SamlResponse { get { return GetValueFromNode("//input[@name=\"goto\"]", "value"); } }
+        private string RelayState { get { return GetValueFromNode("//input[@name=\"SunQueryParamsString\"]", "value"); } }
+
+        public PostData PostData
         {
             get
             {
-                var formData = new IdpFormData();
+                var formData = new IdpPostData();
                 formData.Add("IDButton");
                 formData.Add("goto", SamlResponse);
                 formData.Add("SunQueryParamsString", RelayState);
@@ -40,7 +41,7 @@ namespace V1SSOExample.sso.providers
             }
         }
 
-        internal class IdpFormData : FormData
+        internal class IdpPostData : PostData
         {
             public override void SetCredentials(string username, string password)
             {

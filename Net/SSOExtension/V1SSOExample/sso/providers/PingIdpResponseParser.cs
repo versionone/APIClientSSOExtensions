@@ -1,13 +1,12 @@
 ﻿using System.IO;
-using System.Web;
-using HtmlAgilityPack;
+using System.Xml;
 using VersionOne.SDK.APIClient.SSOExtension;
 
 namespace V1SSOExample.sso.providers
 {
-    public class OpenSsoSpResponseParser : IResponseParser
+    public class PingIdpResponseParser :  IResponseParser
     {
-        private readonly HtmlDocument _doc = new HtmlDocument();
+        private readonly XmlDocument _doc = new XmlDocument();
 
         public string PostUrl { get { return GetValueFromNode("//form", "action"); } }
         public string UrlAuthority { get; set; }
@@ -15,7 +14,7 @@ namespace V1SSOExample.sso.providers
 
         private string GetValueFromNode(string elementXpath, string attributeName)
         {
-            HtmlNode node = _doc.DocumentNode.SelectSingleNode(elementXpath);
+            XmlNode node = _doc.SelectSingleNode(elementXpath);
             if ((node != null) && (node.Attributes != null))
             {
                 return node.Attributes[attributeName].Value;
@@ -30,19 +29,19 @@ namespace V1SSOExample.sso.providers
         {
             get 
             { 
-                var formData = new SpPostData();
-                formData.Add("SAMLResponse", HttpUtility.HtmlDecode(SamlResponse));
-                formData.Add("RelayState", HttpUtility.HtmlDecode(RelayState));
+                var formData = new PingPostData();
+                formData.Add("SAMLResponse", SamlResponse);
+                formData.Add("RelayState", RelayState);
                 return formData;
             }
         }
     }
 
-    internal class SpPostData : PostData
+    internal class PingPostData : PostData
     {
         public override void SetCredentials(string username, string password)
         {
-            // does nothing because there are no credentials on this page.
+            // noting to do here
         }
     }
 }

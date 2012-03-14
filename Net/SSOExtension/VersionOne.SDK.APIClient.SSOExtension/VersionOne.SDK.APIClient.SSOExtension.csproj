@@ -44,7 +44,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FormData.cs" />
+    <Compile Include="PostData.cs" />
     <Compile Include="IResponseParser.cs" />
     <Compile Include="IVersionOneSsoConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

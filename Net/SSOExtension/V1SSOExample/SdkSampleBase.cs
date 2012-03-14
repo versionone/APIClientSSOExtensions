@@ -1,10 +1,9 @@
 namespace V1SSOExample
 {
     /// <summary>
-    /// Base class for all SDK examples.  
-    /// Provides methods for accessing common SDK components
+    /// Interface that SDK examples need to implement
     /// </summary>
-    internal interface ISdkSampleBase
+    internal interface ISdkSample
     {
         /// <summary>
         /// Set attributes from Commandline
