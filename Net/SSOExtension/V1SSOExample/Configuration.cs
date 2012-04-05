@@ -49,5 +49,10 @@ namespace V1SSOExample
         {
             get { return ConfigurationManager.AppSettings["spResponseParser"]; }
         }
+
+        public string AuthenticationUri
+        {
+            get { return ConfigurationManager.AppSettings["authenticationUrl"]; }
+        }
     }
 }

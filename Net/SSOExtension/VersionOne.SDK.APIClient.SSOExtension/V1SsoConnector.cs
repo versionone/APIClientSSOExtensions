@@ -16,6 +16,7 @@ namespace VersionOne.SDK.APIClient.SSOExtension
         private readonly string _idpUrl;
         private readonly string _username;
         private readonly string _password;
+        private readonly string _authenticationUri;
         private readonly bool _integratedauth;
         private readonly ResponseParserFactory _responseParserFactory;
         #endregion
@@ -53,6 +54,7 @@ namespace VersionOne.SDK.APIClient.SSOExtension
             _username = config.Username;
             _password = config.Password;
             _integratedauth = config.IntegratedAuth;
+            _authenticationUri = config.AuthenticationUri;
             _responseParserFactory = new ResponseParserFactory(config);
         }
 
@@ -186,7 +188,7 @@ namespace VersionOne.SDK.APIClient.SSOExtension
                 if (_credentials == null)
                 {
                     _credentials = new CredentialCache();
-                    var uri = new Uri(new Uri(_idpUrl).GetLeftPart(UriPartial.Path));
+                    var uri = new Uri(_authenticationUri);
 
                     if (!string.IsNullOrEmpty(_username) || !string.IsNullOrEmpty(_password))
                     {
