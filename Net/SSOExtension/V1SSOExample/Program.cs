@@ -1,4 +1,6 @@
-﻿namespace V1SSOExample
+﻿using System;
+
+namespace V1SSOExample
 {
     class Program
     {
@@ -9,6 +11,7 @@
             example.CommandLineArguments(args);
             example.Connect();
             example.Run();
+            Console.ReadLine();
         }
     }
 }
